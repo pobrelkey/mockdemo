@@ -35,6 +35,7 @@ print DATA.read.gsub(/^#include\s+(\S+)\s*$/) {
   if s
     unindent = s.split(/[\r\n]/).grep(/^(\s*)[^\s\}]/){$1}.sort{|a,b| a.length <=> b.length }.first || ''
     s.gsub!(Regexp.compile('(^|\r\n?|\n)'+Regexp.quote(unindent)), '\1')
+    s.gsub!(/(\r\n?|\n)[\r\n]+\}/,'\1}')
   end
   s.strip || $&
 }
@@ -48,20 +49,20 @@ This is a brief comparison of several major [http://www.mockobjects.com/ mock ob
 
 The examples presented don't necessarily illustrate the sole correct way of writing tests using these libraries.  They illustrate the way I've usually seen tests written with each library - your mileage may vary.  The examples should be sufficient to give a flavor of differences in mocking syntax, and other relative strengths and weaknesses.
 
-You can download the example tests in this article as a Maven project [TODO here], or get them from Moxie's Google Code SVN repository.
+You can download the example tests in this article as a Maven project from Moxie's [http://code.google.com/p/moxiemocks/downloads/list download page], or get them from Moxie's Google Code [http://moxiemocks.googlecode.com/svn/mockdemo/ SVN repository].
 
 This article was inspired by Jean Tessier's [http://jeantessier.com/SoftwareEngineering/Mocking.html "Mocking in Java: jMock vs. EasyMock"].
 
 
-== Disclaimer ==
+= Disclaimer =
 
 I happen to be the author of [http://www.moxiemocks.org/ Moxie].  I wrote Moxie after I spent nearly three years on a project that used all four other libraries in this comparison, and got annoyed with all of them one reason or another.  So I'm somewhat biased.
 
-= The Libraries
+= The Libraries =
 
 === JMock 2 ===
 
-JMock 2 has had the most attention of the current crop of Java mocking libraries - it has had a large user base, and has been mentioned in numerous books (including _[http://www.growing-object-oriented-software.com/ Growing Object-Oriented Software Guided by Tests]_, written by JMock's authors).  It was notable for having a mocking syntax designed to make sense as a domain-specific language (DSL).  Proponents say its DSL is the most expressive API of any mocking library; critics say its mocking syntax as commonly used, involving the creation of an anonymous inner class per test, is excessively verbose.
+[http://www.jmock.org/ JMock 2] has had the most attention of the current crop of Java mocking libraries - it has had a large user base, and has been mentioned in numerous books (including _[http://www.growing-object-oriented-software.com/ Growing Object-Oriented Software Guided by Tests]_, written by JMock's authors).  It was notable for having a mocking syntax designed to make sense as a domain-specific language (DSL).  Proponents say its DSL is the most expressive API of any mocking library; critics say its mocking syntax as commonly used, involving the creation of an anonymous inner class per test, is excessively verbose.
 
 JMock 2 should be considered a different library from its predecessor, JMock 1; its mocking syntax is almost entirely different.
 
@@ -69,7 +70,7 @@ The example code in this article was tested using JMock 2.5.1.
 
 === JMock 1 ===
 
-JMock 1 was my introduction to mocking around 2003.  JMock 1 is generally considered a legacy library; new projects should use one of the other libraries in this article.
+[http://www.jmock.org/jmock1.html JMock 1] was my introduction to mocking around 2003.  JMock 1 is generally considered a legacy library; new projects should use one of the other libraries in this article.
 
 Compared to more modern mocking libraries, a major drawback of JMock 1 is that the code dates back to the JDK 1.3 days, and as such makes no attempt to use generics to provide a refactorable mocking syntax - i.e. one where using a refactoring tool to change method names/signatures will result in appropriate changes to mocking code.  JMock 1's syntax, while quite nice for its time and more concise than that of JMock 2, is reflection-heavy - names of mocked methods are specified as strings, for example.
 
@@ -77,7 +78,7 @@ The example code in this article was tested using JMock 1.2.0.
 
 === !EasyMock ===
 
-Along with JMock 2, !EasyMock is the other established mocking library for Java 1.5; its syntax is somewhat more concise than that of the two JMocks (especially JMock 2).
+Along with JMock 2, [http://www.easymock.org/ EasyMock] is the other established mocking library for Java 1.5; its syntax is somewhat more concise than that of the two JMocks (especially JMock 2).
 
 Uniquely among the major mocking libraries, !EasyMock mocks are modal.  That is to say, one programs the mocks with the expected behavior, then tells the mocks to "replay" their behavior before passing them to the code under test - so your mocks can either be in "record" mode or "replay" mode.  Proponents say this makes it impossible to muddle together expectation-setting code and code that actually calls the code under test.  Critics say that the required call to {{{EasyMock.replay()}}} before calling the code under test is at best code clutter, at worst an abhorrence.
 
@@ -85,7 +86,7 @@ The example code in this article was tested using !EasyMock 3.0, though it shoul
 
 === Mockito ===
 
-Mockito is similar in API style to !EasyMock (it started out as a fork of !EasyMock), but takes a different approach to mocking: rather than setting up an exhaustive set of expectations ahead of time, you instead stub out any necessary behavior on your mocks, then after calling the code under test verify that the relevant methods on your mock objects were called.
+[http://www.mockito.org/ Mockito] is similar in API style to !EasyMock (it started out as a fork of !EasyMock), but takes a different approach to mocking: rather than setting up an exhaustive set of expectations ahead of time, you instead stub out any necessary behavior on your mocks, then after calling the code under test verify that the relevant methods on your mock objects were called.
 
 Proponents of this "verification-driven" style say it makes tests less brittle and cuts down on the amount of meaningless boilerplate mock expectations in each test.  Critics say it makes it more difficult to write tests that are as strict as traditional "expectation-driven" tests.
 
@@ -99,6 +100,8 @@ Moxie was written from scratch after years of ~~annoyance~~ experience with the 
 
 The example code in this article was tested using Moxie 0.9.
 
+----
+
 = The Class Under Test =
 
 Our example code will use mocks to test {{{ROT13List}}} - a simple class that implements {{{List&lt;String&gt;}}}, transforming the strings using the [http://en.wikipedia.org/wiki/ROT13 ROT13] algorithm when storing/retrieving them from an underlying {{{List&lt;String&gt;}}}.
@@ -106,6 +109,8 @@ Our example code will use mocks to test {{{ROT13List}}} - a simple class that im
 {{{
 #include src/main/java/mockdemo/ROT13List.java
 }}}
+
+----
 
 = Boilerplate Code =
 
@@ -154,6 +159,8 @@ An explanatory note: {{{MoxieRule}}} also populates fields of type {{{Group}}}; 
 {{{
 #include src/test/java/mockdemo/MoxieTest.java##start
 }}}
+
+----
 
 = A Simple Test =
 
@@ -206,6 +213,8 @@ Mock expectations in Moxie begin by referencing the mock object, set up any deta
 Some people (especially !EasyMock/Mockito fans) find it slightly stilted to have the method at the end of the mocking syntax.  This was done to keep the syntax consistent for void and non-void methods - probably the biggest problem with !EasyMock/Mockito's syntax.
 
 
+----
+
 = Fuzzy Parameter Matching =
 
 Each mocking library has a mechanism by which conditional expressions can be evaluated against parameters to mocked methods.  For example, we may want an expectation to match only if the value of a parameter is greater than zero, or if it is a string containing a certain substring.  Alternately, we may not care what parameter gets passed to a method, and want the expectation to match regardless of the value passed.
@@ -252,6 +261,8 @@ Mockito's fuzzy-match syntax is quite similar to !EasyMock's, as Mockito started
 Moxie's fuzzy-match syntax is similar to that of Mockito, including Hamcrest {{{Matcher}}} support.
 
 
+----
+
 = Calls In Sequence Across Mocks =
 
 Most of the mocking libraries (except JMock 1) let you verify that method calls are received in a certain sequence across mocks.  For example, you might want to verify that {{{mock2.getBar()}}} is called only after a call to {{{mock1.getFoo()}}} is received, and that {{{mock3.getBaz()}}} is only called after the call to {{{mock2.getBar()}}}.
@@ -297,6 +308,8 @@ In Mockito, the {{{InOrder}}} object behaves similarly to a strict mock control 
 Moxie uses {{{Group}}}s to tie together sequences of calls across mocks, similarly to JMock 2.  ({{{sequence}}} is a field of type {{{Group}}} automatically populated by {{{MoxieRule}}}, Moxie's JUnit 4 integration class.)
 
 
+----
+
 = Throwing Exceptions From A Mock =
 
 Confiuring a mocked method to throw an exception rather than return a value is straightforward in most of the mocking libraries.
@@ -319,7 +332,7 @@ Confiuring a mocked method to throw an exception rather than return a value is s
 #include src/test/java/mockdemo/EasyMockTest.java#throwExceptions
 }}}
 
-Note that !EasyMock's syntax for throwing an exception from a mock call is inconsistent with that for methods that return a value.
+Note that !EasyMock's syntax for throwing an exception from a mocked method returning void is inconsistent with that for methods that return a value.
 
 === Mockito ===
 
@@ -327,7 +340,7 @@ Note that !EasyMock's syntax for throwing an exception from a mock call is incon
 #include src/test/java/mockdemo/MockitoTest.java#throwExceptions
 }}}
 
-Mockito's void-method syntax for throwing exceptions is also inconsistent with non-void methods - though it's slightly improved over !EasyMock.
+As in !EasyMock, Mockito's void-method syntax for throwing exceptions is also inconsistent with non-void methods - though it's slightly improved.
 
 === Moxie ===
 
@@ -335,6 +348,8 @@ Mockito's void-method syntax for throwing exceptions is also inconsistent with n
 #include src/test/java/mockdemo/MoxieTest.java#throwExceptions
 }}}
 
+
+----
 
 = Ignoring Calls To A Mock =
 
@@ -381,6 +396,8 @@ There's no special way of setting up an "ignored" method in Mockito - you just d
 Moxie uses {{{stub()}}} to set up "ignored" mock method behavior.
 
 
+----
+
 = Responding Differently On Consecutive Calls =
 
 Once in a great while we'll want a mocked method to exhibit one behavior on one call, and another behavior on a subsequent call.  The first mock expectation in the example returns a series of values across different calls, similar to an iterator method; the second expectation returns a value on the first call, then throws an exception on the second call.
@@ -391,11 +408,15 @@ Once in a great while we'll want a mocked method to exhibit one behavior on one 
 #include src/test/java/mockdemo/JMock2Test.java#consecutiveCalls
 }}}
 
+JMock 2 uses the {{{onConsecutiveCalls()}}} method to specify consecutice-calls behavior.
+
 === JMock 1 ===
 
 {{{
 #include src/test/java/mockdemo/JMock1Test.java#testConsecutiveCalls
 }}}
+
+JMock 1 has its own similar version of the {{{onConsecutiveCalls()}}} method.
 
 === !EasyMock ===
 
@@ -403,11 +424,15 @@ Once in a great while we'll want a mocked method to exhibit one behavior on one 
 #include src/test/java/mockdemo/EasyMockTest.java#consecutiveCalls
 }}}
 
+In !EasyMock, consecutive-calls behavior is specified by calling multiple behavior-specifying methods in a row.
+
 === Mockito ===
 
 {{{
 #include src/test/java/mockdemo/MockitoTest.java#consecutiveCalls
 }}}
+
+Mockito specifies consecutive-calls behavior similarly to !EasyMock, but also offers a shorthand method to soecify different values to be returned from a method in succession.
 
 === Moxie ===
 
@@ -415,5 +440,6 @@ Once in a great while we'll want a mocked method to exhibit one behavior on one 
 #include src/test/java/mockdemo/MoxieTest.java#consecutiveCalls
 }}}
 
+Moxie's consecutive-calls syntax is similar to that of Mockito.  Note that the total number of calls does not need to be explicitly specified, but if it is it will be validated against the number of consecutive-call behaviors.
 
 
