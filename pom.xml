@@ -17,8 +17,25 @@
         </developer>
     </developers>
 
+    <!-- here exclusively so that we can load JMockit - ewwww! -->
+    <repositories>
+        <repository>
+            <id>jmockit-svn</id>
+            <url>http://jmockit.googlecode.com/svn/maven-repo</url>
+            <releases>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+    </repositories>
 
     <dependencies>
+        <dependency>
+            <!-- JMockit has to go first - yuck! -->
+            <groupId>mockit</groupId>
+            <artifactId>jmockit</artifactId>
+            <version>0.999.10</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
