@@ -94,9 +94,17 @@ This article uses all expectation-driven tests - a testing style Mockito is ill-
 
 The example code in this article was tested using Mockito 1.8.5.
 
+=== JMockit ===
+
+[http://code.google.com/p/jmockit JMockit] is a lesser-known mocking framework for Java.  It has its own syntax, most similar in appearance to JMock 2.  It's capable of both expectation-driven and verification-driven testing.
+
+Unlike the other five mocking frameworks in this comparison, I've never used JMockit in a real project; I wrote the example code you see below in about half an hour having just downloaded JMockit.  I had previously found its syntax offputting - with its use of anonymous inner classes, direct access to protected fields, and limited set of parameter matchers - and found little in my brief interactions with JMockit to dispel these notions.  Also, it insists on being before JUnit in the classpath, which isn't a good sign.
+
+The example code in this article was tested using JMockit 0.999.10.
+
 === Moxie ===
 
-Moxie was written from scratch after years of ~~annoyance~~ experience with the other four major frameworks, taking lessons from each.  It aims to have a consistent, concise mocking syntax "nicer" than that of the competiton.
+Moxie was written from scratch after years of ~~annoyance~~ experience with the four major frameworks, taking lessons from each.  It aims to have a consistent, concise mocking syntax "nicer" than that of the competiton.
 
 The example code in this article was tested using Moxie 0.9.
 
@@ -148,6 +156,14 @@ Mockito offers a {{{MockitoJUnitRunner}}} for use with JUnit 4, which automatica
 
 {{{
 #include src/test/java/mockdemo/MockitoTest.java##start
+}}}
+
+=== JMockit ===
+
+When used as directed with JUnit 4 (including putting the JMockit jar ahead of the JUnit jar on the classpath), JMockit will automatically put a mock object into each field annotated with {{{@Mocked}}} before each test. 
+
+{{{
+#include src/test/java/mockdemo/JMockitTest.java##start
 }}}
 
 === Moxie ===
@@ -202,6 +218,16 @@ You can probably see from this example why Mockito is ill-suited to writing exha
 
 Again, these examples aren't entirely fair on Mockito, which comes from a different philosophy of testing.  Mockito fans would argue that trying to verify too many things as in this example makes your tests too broad and brittle, and your tests should instead take Mockito's lighter-weight approach of only verifying what you must.
 
+=== JMockit ===
+
+{{{
+#include src/test/java/mockdemo/JMockitTest.java#simpleScenario
+}}}
+
+JMockit's syntax looks similar to that of JMock 2, with an anonymous inner class extending JMockit's {{{Expectations}}} class used to specify the expected calls.
+
+Note that you specify the value that each mock call will return by assigning a value to the magical {{{result}}} protected variable after the call (there is also a {{{returns()}}} method you can call instead).  Other protected fields are used to set invocation counts (i.e. number of times a method will be called) and for certain argument matchers, as will be seen later.
+
 === Moxie ===
 
 {{{
@@ -252,6 +278,14 @@ The {{{EasyMock}}} class has many static methods that can be used to build match
 
 Mockito's fuzzy-match syntax is quite similar to !EasyMock's, as Mockito started life as an !EasyMock derivative.  You can specify a custom Hamcrest {{{Matcher}}} using Mockito's {{{argThat()}}} method.
 
+=== JMockit ===
+
+{{{
+#include src/test/java/mockdemo/JMockitTest.java#fuzzyParameterMatching
+}}}
+
+JMockit has a limited set of parameter matchers that can be used directly; it seems the accepted practice for all but the simplest cases is to use the {{{with()}}} method to specify a Hamcrest matcher.  Note that there are two forms of {{{with()}}} - the two-argument syntax (the first argument is a throwaway value) must be specified when matching a parameter of a primitive type.
+
 === Moxie ===
 
 {{{
@@ -299,6 +333,14 @@ The !EasyMock {{{createStrictControl()}}} method gives you an {{{IMocksControl}}
 
 In Mockito, the {{{InOrder}}} object behaves similarly to a strict mock control in !EasyMock.
 
+=== JMockit ===
+
+{{{
+#include src/test/java/mockdemo/JMockitTest.java#callsInSequence
+}}}
+
+In JMockit, all calls set up within an individual instance of {{{Expectations}}} are taken to be a sequence of calls across objects that must occur in the order specified.
+
 === Moxie ===
 
 {{{
@@ -341,6 +383,14 @@ Note that !EasyMock's syntax for throwing an exception from a mocked method retu
 }}}
 
 As in !EasyMock, Mockito's void-method syntax for throwing exceptions is also inconsistent with non-void methods - though it's slightly improved.
+
+=== JMockit ===
+
+{{{
+#include src/test/java/mockdemo/JMockitTest.java#throwExceptions
+}}}
+
+In JMockit, you make a mock method throw an exception by assigning the desired exception to the protected {{{result}}} field immediately after the setup call.  (The {{{returns()}}} method can be used where a method actually returns an exception; no analogous {{{throws()}}} method exists for those averse to directly setting fields.)
 
 === Moxie ===
 
@@ -386,6 +436,14 @@ In !EasyMock you can effectively "ignore" a method using the {{{anyTimes()}}} mo
 }}}
 
 There's no special way of setting up an "ignored" method in Mockito - you just don't verify it at the end of the test.
+
+=== JMockit ===
+
+{{{
+#include src/test/java/mockdemo/JMockitTest.java#ignoreInvocations
+}}}
+
+The {{{NonStrictExpectations}}} class is used to set "ignored" expectations which won't fail the test if they aren't fulfilled.
 
 === Moxie ===
 
@@ -433,6 +491,14 @@ In !EasyMock, consecutive-calls behavior is specified by calling multiple behavi
 }}}
 
 Mockito specifies consecutive-calls behavior similarly to !EasyMock, but also offers a shorthand method to soecify different values to be returned from a method in succession.
+
+=== JMockit ===
+
+{{{
+#include src/test/java/mockdemo/JMockitTest.java#consecutiveCalls
+}}}
+
+JMockit offers a varargs version of the {{{returns()}}} method to specify a series of values to be consecutively returned.  Expectations that throw a series of exceptions, or exceptions after successfully returned values, have to be written out longhand.
 
 === Moxie ===
 

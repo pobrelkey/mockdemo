@@ -58,7 +58,6 @@ public class JMockitTest {
 
     @Test
     public void callsInSequence() {
-        // JMockit automatically expects all calls in an Expectations to occur in order across any referenced mock objects.
         new Expectations() {{
             mock.add("svefg pnyy");
             otherMock.add("frpbaq pnyy");
@@ -136,4 +135,5 @@ public class JMockitTest {
             Assert.assertEquals("blah blah", e.getMessage());
         }
     }
+
 }

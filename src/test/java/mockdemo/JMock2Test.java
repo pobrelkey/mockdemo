@@ -179,4 +179,5 @@ public class JMock2Test {
             Assert.assertEquals("blah blah", e.getMessage());
         }
     }
+
 }

@@ -124,4 +124,5 @@ public class MoxieTest {
             Assert.assertEquals("blah blah", e.getMessage());
         }
     }
+
 }
