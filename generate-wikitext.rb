@@ -90,7 +90,7 @@ The example code in this article was tested using !EasyMock 3.0, though it shoul
 
 Proponents of this "verification-driven" style say it makes tests less brittle and cuts down on the amount of meaningless boilerplate mock expectations in each test.  Critics say it makes it more difficult to write tests that are as strict as traditional "expectation-driven" tests.
 
-This article uses all expectation-driven tests - a testing style Mockito is ill-suited to writing - which makes it a not entrely fair comparison with respect to Mockito.  The Mockito authors have an [http://code.google.com/p/mockito/wiki/MockitoVSEasyMock article] on their wiki comparing verification-driven tests in Mockito with expectation-driven tests in !EasyMock, which should give a flavor of the difference between the two styles.
+This article uses all expectation-driven tests - a testing style Mockito is ill-suited to writing - which makes it a not entirely fair comparison with respect to Mockito.  The Mockito authors have an [http://code.google.com/p/mockito/wiki/MockitoVSEasyMock article] on their wiki comparing verification-driven tests in Mockito with expectation-driven tests in !EasyMock, which should give a flavor of the difference between the two styles.
 
 The example code in this article was tested using Mockito 1.8.5.
 
@@ -98,13 +98,13 @@ The example code in this article was tested using Mockito 1.8.5.
 
 [http://code.google.com/p/jmockit JMockit] is a lesser-known mocking framework for Java.  It has its own syntax, most similar in appearance to JMock 2.  It's capable of both expectation-driven and verification-driven testing.
 
-Unlike the other five mocking frameworks in this comparison, I've never used JMockit in a real project; I wrote the example code you see below in about half an hour having just downloaded JMockit.  I had previously found its syntax offputting - with its use of anonymous inner classes, direct access to protected fields, and limited set of parameter matchers - and found little in my brief interactions with JMockit to dispel these notions.  Also, it insists on being before JUnit in the classpath, which isn't a good sign.
+Unlike the other five mocking frameworks in this comparison, I've never used JMockit in a real project; I wrote the example code you see below in about half an hour having just downloaded JMockit.  I had previously found its syntax off-putting - with its use of anonymous inner classes, direct access to protected fields, and limited set of parameter matchers - and found little in my brief interactions with JMockit to dispel these notions.  Also, it insists on being before JUnit in the classpath, which isn't a good sign.
 
 The example code in this article was tested using JMockit 0.999.10.
 
 === Moxie ===
 
-Moxie was written from scratch after years of ~~annoyance~~ experience with the four major frameworks, taking lessons from each.  It aims to have a consistent, concise mocking syntax "nicer" than that of the competiton.
+Moxie was written from scratch after years of ~~annoyance~~ experience with the four major frameworks, taking lessons from each.  It aims to have a consistent, concise mocking syntax "nicer" than that of the competition.
 
 The example code in this article was tested using Moxie 0.9.
 
@@ -122,7 +122,7 @@ Our example code will use mocks to test {{{ROT13List}}} - a simple class that im
 
 = Boilerplate Code =
 
-Tests using the different mocking libraries typically have different amounts of bolierplate code to enable mocking in the test.  In the examples below, import statements are omitted for brevity.
+Tests using the different mocking libraries typically have different amounts of boilerplate code to enable mocking in the test.  In the examples below, import statements are omitted for brevity.
 
 === JMock 2 ===
 
@@ -466,7 +466,7 @@ Once in a great while we'll want a mocked method to exhibit one behavior on one 
 #include src/test/java/mockdemo/JMock2Test.java#consecutiveCalls
 }}}
 
-JMock 2 uses the {{{onConsecutiveCalls()}}} method to specify consecutice-calls behavior.
+JMock 2 uses the {{{onConsecutiveCalls()}}} method to specify consecutive-calls behavior.
 
 === JMock 1 ===
 
@@ -490,7 +490,7 @@ In !EasyMock, consecutive-calls behavior is specified by calling multiple behavi
 #include src/test/java/mockdemo/MockitoTest.java#consecutiveCalls
 }}}
 
-Mockito specifies consecutive-calls behavior similarly to !EasyMock, but also offers a shorthand method to soecify different values to be returned from a method in succession.
+Mockito specifies consecutive-calls behavior similarly to !EasyMock, but also offers a shorthand method to specify different values to be returned from a method in succession.
 
 === JMockit ===
 
