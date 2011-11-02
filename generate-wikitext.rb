@@ -20,7 +20,7 @@ Find.find(dir) do |path|
   lines = []
   source.each_line do |line|
     lines << line
-    if line =~ /^\s*(?:(?:public|private|protected|abstract|final|@\w+)\s+)*(?:<.*?>\s+)?(?:\w+(?:\s*<.*?>)?\s+)?(\w+)\s*\((?:[^\s,\)]+\s+[^\s,\)]+(?:,\s+|(?=\))))*\)\s*\{\s*$/
+    if line =~ /^\s*(?:(?:public|private|protected|abstract|final|@\w+)\s+)*(?:<.*?>\s+)?(?:\w+(?:\s*<.*?>)?\s+)?((?!get)\w+)\s*\(\)\s*\{\s*$/
       key = "#{filename}##{$1}"
     elsif line =~ /^\s*(?:\}\s*)?$/
       (sections[key] || (sections[key] = '')) << lines.join('')
@@ -37,7 +37,7 @@ print DATA.read.gsub(/^#include\s+(\S+)\s*$/) {
     s.gsub!(Regexp.compile('(^|\r\n?|\n)'+Regexp.quote(unindent)), '\1')
     s.gsub!(/(\r\n?|\n)[\r\n]+\}/,'\1}')
   end
-  s.strip || $&
+  (s || $&).strip
 }
 __END__
 
@@ -98,9 +98,17 @@ The example code in this article was tested using Mockito 1.8.5.
 
 [http://code.google.com/p/jmockit JMockit] is a lesser-known mocking framework for Java.  It has its own syntax, most similar in appearance to JMock 2.  It's capable of both expectation-driven and verification-driven testing.
 
-Unlike the other five mocking frameworks in this comparison, I've never used JMockit in a real project; I wrote the example code you see below in about half an hour having just downloaded JMockit.  I had previously found its syntax off-putting - with its use of anonymous inner classes, direct access to protected fields, and limited set of parameter matchers - and found little in my brief interactions with JMockit to dispel these notions.  Also, it insists on being before JUnit in the classpath, which isn't a good sign.
+Unlike most of the mocking frameworks in this comparison, I've never used JMockit in a real project; I wrote the example code you see below in about half an hour having just downloaded JMockit.  I had previously found its syntax off-putting - with its use of anonymous inner classes, direct access to protected fields, and limited set of parameter matchers - and found little in my brief interactions with JMockit to dispel these notions.  Also, it insists on being before JUnit in the classpath, which isn't a good sign.
 
 The example code in this article was tested using JMockit 0.999.10.
+
+=== Mockachino ===
+
+[http://code.google.com/p/mockachino Mockachino] is a newish Java mocking framework.  It takes Mockito's verification-driven approach to testing.
+
+I've not used Mockachino in anger; the example code you see here is based on an original version kindly contributed by Kristofer Karlsson (Mockachino's author).  Its syntax represents an improvement over Mockito.  Personally I find the lack of a {{{verifyNoMoreInteractions}}} method disturbing, as this means you won't be able to use Mockachino to write tests that blow up on unexpected method invocations -  of course, if you're a believer in verification-driven testing you'll argue that you shouldn't be trying to write such tests to begin with.
+
+The example code in this article was tested using Mockachino 0.6.
 
 === Moxie ===
 
@@ -166,6 +174,16 @@ When used as directed with JUnit 4 (including putting the JMockit jar ahead of t
 #include src/test/java/mockdemo/JMockitTest.java##start
 }}}
 
+=== Mockachino ===
+
+Mockachino doesn't have any JUnit-specific integration features, but does have a convenient {{{setupMocks}}} method that will put a mock into any field on the test class having a {{{@Mock}}} annotation.
+
+Also note that for one of our tests we'll need to manually implement a {{{greaterThan}}} matcher as Mockachino doesn't have this built in.  The code for this is included here for completeness - presumably you'll have this in a utility class in your project rather than on every test!
+
+{{{
+#include src/test/java/mockdemo/MockachinoTest.java##start
+}}}
+
 === Moxie ===
 
 Moxie has {{{MoxieRule}}}, usable under JUnit 4.7 or later.  Like Mockito's JUnit integration, it automatically creates mocks before each test; unlike Mockito, it also verifies them afterward.  Without {{{MoxieRule}}}, manual mock creation/verification looks very similar to !EasyMock.
@@ -228,6 +246,16 @@ JMockit's syntax looks similar to that of JMock 2, with an anonymous inner class
 
 Note that you specify the value that each mock call will return by assigning a value to the magical {{{result}}} protected variable after the call (there is also a {{{returns()}}} method you can call instead).  Other protected fields are used to set invocation counts (i.e. number of times a method will be called) and for certain argument matchers, as will be seen later.
 
+=== Mockachino ===
+
+{{{
+#include src/test/java/mockdemo/MockachinoTest.java#simpleScenario
+}}}
+
+As Mockachino is a verification-driven testing framework, most of the caveats about these examples not being entirely fair on Mockito will apply equally for Mockachino.
+
+Note that Mockachino doesn't have a {{{verifyNoMoreInteractions}}} method like Mockito, so unexpected method invocations on the mock won't fail the test.
+
 === Moxie ===
 
 {{{
@@ -286,6 +314,14 @@ Mockito's fuzzy-match syntax is quite similar to !EasyMock's, as Mockito started
 
 JMockit has a limited set of parameter matchers that can be used directly; it seems the accepted practice for all but the simplest cases is to use the {{{with()}}} method to specify a Hamcrest matcher.  Note that there are two forms of {{{with()}}} - the two-argument syntax (the first argument is a throwaway value) must be specified when matching a parameter of a primitive type.
 
+=== Mockachino ===
+
+{{{
+#include src/test/java/mockdemo/MockachinoTest.java#fuzzyParameterMatching
+}}}
+
+Mockachino has a fuzzy-match syntax similar to Mockito or !EasyMock, with several parameter matchers on its {{{Matchers}}} utility class.  Custom matchers can be specified with the {{{m()}}} method; this takes an instance of Mockachino's {{{Matcher}}} interface, which is similar in spirit to the interface of the same name in Hamcrest.
+
 === Moxie ===
 
 {{{
@@ -341,6 +377,14 @@ In Mockito, the {{{InOrder}}} object behaves similarly to a strict mock control 
 
 In JMockit, all calls set up within an individual instance of {{{Expectations}}} are taken to be a sequence of calls across objects that must occur in the order specified.
 
+=== Mockachino ===
+
+{{{
+#include src/test/java/mockdemo/MockachinoTest.java#callsInSequence
+}}}
+
+Mockachino uses the {{{OrderingContext}}} object to perform ordered verifications on sequences of calls.
+
 === Moxie ===
 
 {{{
@@ -354,7 +398,7 @@ Moxie uses {{{Group}}}s to tie together sequences of calls across mocks, similar
 
 = Throwing Exceptions From A Mock =
 
-Confiuring a mocked method to throw an exception rather than return a value is straightforward in most of the mocking libraries.
+Configuring a mocked method to throw an exception rather than return a value is straightforward in most of the mocking libraries.
 
 === JMock 2 ===
 
@@ -391,6 +435,20 @@ As in !EasyMock, Mockito's void-method syntax for throwing exceptions is also in
 }}}
 
 In JMockit, you make a mock method throw an exception by assigning the desired exception to the protected {{{result}}} field immediately after the setup call.  (The {{{returns()}}} method can be used where a method actually returns an exception; no analogous {{{throws()}}} method exists for those averse to directly setting fields.)
+
+=== Mockachino ===
+
+{{{
+#include src/test/java/mockdemo/MockachinoTest.java#throwExceptions
+}}}
+
+Note that as in Mockito and !EasyMock, the syntax to set up the raised exceptions is different depending on whether or not the method returns a value.
+
+Kristofer Karlsson (Mockachino's author) points out that the following two lines would offer a more concise alternative to the try-catch blocks, though these would obviously lack the checks on the thrown exception:
+{{{
+    Mockachino.assertThrows(RuntimeException.class).on(underTest).clear();
+    Mockachino.assertThrows(RuntimeException.class).on(underTest).add("Magic Squirrel Juice");
+}}}
 
 === Moxie ===
 
@@ -444,6 +502,14 @@ There's no special way of setting up an "ignored" method in Mockito - you just d
 }}}
 
 The {{{NonStrictExpectations}}} class is used to set "ignored" expectations which won't fail the test if they aren't fulfilled.
+
+=== Mockachino ===
+
+{{{
+#include src/test/java/mockdemo/MockachinoTest.java#ignoreInvocations
+}}}
+
+As in Mockito, the way to "ignore" an invocation is to simply not verify it at the end of the test.
 
 === Moxie ===
 
@@ -499,6 +565,14 @@ Mockito specifies consecutive-calls behavior similarly to !EasyMock, but also of
 }}}
 
 JMockit offers a varargs version of the {{{returns()}}} method to specify a series of values to be consecutively returned.  Expectations that throw a series of exceptions, or exceptions after successfully returned values, have to be written out longhand.
+
+=== Mockachino ===
+
+{{{
+#include src/test/java/mockdemo/MockachinoTest.java#consecutiveCalls
+}}}
+
+The consecutive-calls syntax for Mockachino is similar to that for Mockito.
 
 === Moxie ===
 

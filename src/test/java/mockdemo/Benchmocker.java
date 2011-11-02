@@ -25,6 +25,7 @@ public class Benchmocker {
             JMock2Test.class,
             JMockitTest.class,
             MockitoTest.class,
+            MockachinoTest.class,
             MoxieTest.class
     };
 
