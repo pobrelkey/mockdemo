@@ -1,7 +1,5 @@
 package mockdemo;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 
@@ -16,7 +14,7 @@ import java.util.TreeMap;
 
 // Quick and dirty performance benchmarking test comparing different mocking libraries.
 // For a large data set over which to run analysis, leave something like the following running over an evening/weekend:
-// while true ; do for i in 1 5 10 25 50 100 250 500 1000 2500 5000 10000 ; do ( date ; mvn exec:exec -Dexec.executable=java -Dexec.classpathScope=test -Dexec.args="-Xmx256m -cp %classpath mockdemo.PerformanceBenchmarker ${i}" ) | grep -Ev '^\[INFO\] ' | tee -a tests.out ; done ; done
+// while true ; do for i in 1 5 10 25 50 100 250 500 1000 2500 5000 10000 ; do ( date ; mvn exec:exec -Dexec.executable=java -Dexec.classpathScope=test -Dexec.args="-Xmx256m -cp %classpath mockdemo.Benchmocker ${i}" ) | grep -Ev '^\[INFO\] ' | tee -a tests.out ; done ; done
 public class Benchmocker {
 
     static private Class[] TEST_CLASSES = {
@@ -26,7 +24,9 @@ public class Benchmocker {
             JMockitTest.class,
             MockitoTest.class,
             MockachinoTest.class,
-            MoxieTest.class
+            MockachinoQuickTest.class,
+            MoxieTest.class,
+            MoxieSlowTest.class
     };
 
 
