@@ -34,8 +34,9 @@ public class Benchmocker {
         ArrayList<Class> result = new ArrayList<Class>(TEST_CLASSES.length);
         ArrayList<Class> candidates = new ArrayList<Class>(Arrays.asList(TEST_CLASSES));
         while (!candidates.isEmpty()) {
-            result.add(candidates.remove(i % candidates.size()));
-            i /= (candidates.size()+1);
+            int s = candidates.size();
+            result.add(candidates.remove(i % s));
+            i /= s;
         }
         return result;
     }
@@ -78,8 +79,12 @@ public class Benchmocker {
             runTimes.put(testClass, 0L);
         }
         for (Class testClass : runningOrder) {
+            long startTime = System.currentTimeMillis();
             Result testResult = JUnitCore.runClasses(testClass);
-            runTimes.put(testClass, runTimes.get(testClass) + testResult.getRunTime());
+            long endTime = System.currentTimeMillis();
+            //long runTime = testResult.getRunTime();
+            long runTime = endTime - startTime;
+            runTimes.put(testClass, runTimes.get(testClass) + runTime);
         }
 
         // print results
